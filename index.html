@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Digital Clock by Praveen Kumar</title>
+
+        <style>
+            *{
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box; 
+            }
+
+            body{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                min-height: 100vh;
+                background: #2f363e;
+                font-family: Verdana, Geneva, Tahoma, sans-serif;
+            }
+
+            #clock{
+                position: relative;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 1;
+            }
+
+            #hrDots, #minDots, #secDots{
+                position: relative;
+                width: 200px;
+                height: 200px;
+                border-radius: 50%;
+                rotate: 90deg;
+            }
+
+            #minDots{
+                margin: 0 50px;
+            }
+
+            #hrDots::before, #minDots::before, #secDots::before{
+                content: '';
+                position: absolute;
+                inset: -20px;
+                border-radius: 50%;
+                box-shadow: 25px 25px 75px rgba(0,0,0,0.25), 10px 10px 70px rgba(0,0,0,0.25), inset 5px 5px 10px rgba(0,0,0,0.25), inset 5px 5px 20px rgba(255,255,255,0.2), inset -5px -5px 15px rgba(0,0,0,0.75);
+            }
+
+            #hrDots h2, #minDots h2, #secDots h2{
+                position: absolute;
+                text-align: center;
+                transform: rotate(-90deg);
+                inset: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                color: var(--clr);
+                font-size: 3.5em;
+                font-weight: 500;
+            }
+
+            #hrDots h2 span, #minDots h2 span, #secDots h2 span{
+                position: absolute;
+                font-size: 0.25em;
+                font-weight: 500;
+                bottom: 50px;
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+            }
+
+            #secDots b{
+                position: absolute;
+                color: #fff;
+                display: inline-flex;
+                transform: rotate(-90deg) translate(-30px, 90px);
+            }
+
+            #secDots .dot, #minDots .dot, #hrDots .dot{
+                position: absolute;
+                top: 48%;
+                width: 10px;
+                height: 3px;
+                background: var(--clr);
+                transform-origin: 100px;
+            }
+
+            #secDots .active.dot, #minDots .active.dot, #hrDots .active.dot{
+                background-color: var(--clr);
+                box-shadow: 0 0 10px var(--clr), 0 0 20px var(--clr), 0 0 30px var(--clr);
+            }
+
+            #secDots .active.dot ~ .dot, #minDots .active.dot ~ .dot, #hrDots .active.dot ~ .dot{
+                background: #555;
+            }
+
+            #secDots .dot:nth-child(5n+5), #minDots .dot:nth-child(5n+5){
+                width: 20px;
+            }
+
+            #hrDots .dot{
+                width: 20px;
+            }
+
+            #hrDots .dot::before{
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 10px;
+                width: 4px;
+                height: 4px;
+                border-radius: 4px;
+                background: var(--clr);
+                box-shadow: 1.5px 9px var(--clr), 4px 18px var(--clr), 7px 27px var(--clr);
+            }
+
+            #hrDots .dot.active ~ .dot::before{
+                background: #555;
+                box-shadow: 1.5px 9px #555, 4px 18px #555, 7px 27px #555;
+            }
+
+            #date #dayDate{
+                background: linear-gradient(to right, gold, blue);
+                background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-top: 50px;
+                font-size: 30px;
+                font-weight: 600;
+                text-align: center;
+                text-transform: uppercase;
+                
+            }
+
+            @media (max-width: 767px){
+                body{
+                    padding: 50px 0;
+                }
+                #clock{
+                    flex-direction: column;
+                }
+
+                #minDots{
+                    margin: 50px 0;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="clock">
+            <div id="hrDots" style="--clr: gold;"></div>
+            <div id="minDots" style="--clr: gold;"></div>
+            <div id="secDots" style="--clr: blue;"></div>
+        </div>
+        
+        <div id="date">
+            <p id="dayDate"></p>
+        </div>
+
+
+        <!-- JavaScript -->
+
+        <script>
+            function clock(){
+                let secDots = document.getElementById("secDots");
+                let minDots = document.getElementById("minDots");
+                let hrDots = document.getElementById("hrDots");
+
+                var date = new Date();
+                var hours = date.getHours() % 12 // Convert to 12-hour format
+                var amPm = date.getHours() >= 12 ? 'PM' : 'AM';
+
+                hours = hours === 0 ? 12 : hours; // handle midnight(0 hours)
+
+                var minutes = date.getMinutes();
+                var seconds = date.getSeconds();
+
+                var secondDots = '';
+                for (var i = 1; i < 61; i++){
+                    var rotation = i * 6; // Rotate each line by 6 degree
+                    if(i === seconds){
+                        secondDots += '<div class="dot active" style="transform: rotate('+rotation+'deg)"></div>';
+                    }else{
+                        secondDots += '<div class="dot" style="transform: rotate('+rotation+'deg)"></div>';
+                    }
+                }
+
+                var minuteDots = '';
+                for (var i = 1; i < 61; i++){
+                    var rotation = i * 6; // Rotate each line by 6 degree
+                    if(i === minutes){
+                        minuteDots += '<div class="dot active" style="transform: rotate('+rotation+'deg)"></div>';
+                    }else{
+                        minuteDots += '<div class="dot" style="transform: rotate('+rotation+'deg)"></div>';
+                    }
+                }
+
+                var hourDots = '';
+                for (var i = 1; i < 13; i++){
+                    var rotation = i * 30; // Rotate each line by 30 degree
+                    if(i === hours){
+                        hourDots += '<div class="dot active" style="transform: rotate('+rotation+'deg)"></div>';
+                    }else{
+                        hourDots += '<div class="dot" style="transform: rotate('+rotation+'deg)"></div>';
+                    }
+                }
+
+                secDots.innerHTML = secondDots + '<b>' + amPm + '</b>' + '<h2>' + zero(seconds) + '<br><span>Seconds</span></h2>';
+                minDots.innerHTML = minuteDots + '<h2>' + zero(minutes) + '<br><span>Minutes</span></h2>';
+                hrDots.innerHTML = hourDots + '<h2>' + zero(hours) + '<br><span>Hours</span></h2>';
+
+
+                let day = date.getDay();
+                let month = date.getMonth();
+                let year = date.getFullYear();
+                let datee = date.getDate();
+
+                var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+                var week = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+                var dateSuffix = "";
+
+                if(datee === 1 || datee === 21 || datee === 31){
+                    dateSuffix = "st";
+                }else if(datee === 2 || datee === 22){
+                    dateSuffix = "2nd";
+                }else if(datee === 3 || datee === 23){
+                    dateSuffix = "3rd";
+                }else{
+                    dateSuffix = "th";
+                }
+
+                var presentDay = datee + dateSuffix + " " + months[month] +  " " + year + ", " + week[day];
+
+                document.getElementById("dayDate").innerHTML = presentDay;
+                }
+
+            // Add zero in single digit number
+            function zero(number){
+                if(number < 10){
+                    return '0' + number;
+                }else{
+                    return number;
+                }
+            }
+
+            setInterval(clock);
+            
+        </script>
+    </body>
+</html>
